@@ -1,0 +1,27 @@
+{
+    "name": "RVStarArduino",
+    "version": "1.0.0",
+    "description": "",
+    "keywords": "nuclei, rvstar, arduino",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/myyerrol/RVStarArduino.git"
+    },
+    "authors": {
+        "name": "myyerrol",
+        "email": "myyerrol@126.com",
+        "maintainer": true
+    },
+    "license": "GPL-3.0",
+    "frameworks": "nuclei-sdk",
+    "platforms": "nuclei",
+    "examples": [{
+        "name": "Test blink",
+        "base": "examples",
+        "files": ["test_blink.c"]
+    }, {
+        "name": "Test pwm",
+        "base": "examples",
+        "files": ["test_pwm.c"]
+    }]
+}
