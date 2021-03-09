@@ -245,9 +245,9 @@ void initTimerPWMMode(uint8_t pin) {
     timer_enable(timer);
 }
 
-// int analogRead(uint8_t pin) {
+int analogRead(uint8_t pin) {
 
-// }
+}
 
 // void analogReference(uint8_t mode) {
 
