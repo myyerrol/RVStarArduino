@@ -76,19 +76,25 @@ typedef unsigned int word;
 typedef bool boolean;
 typedef uint8_t byte;
 
-void initTimerPWMMode(uint8_t pin);
+void initTimerPWMFunc(uint8_t pin);
+void initADCFunc(uint8_t pin);
 
+// 模拟输入/输出函数
+// Analog I/O functions
 int analogRead(uint8_t pin);
-void analogReference(uint8_t mode);
+// void analogReference(uint8_t mode);
 void analogWrite(uint8_t pin, int val);
+// 数字输入/输出函数
+// Digital I/O functions
 int digitalRead(uint8_t pin);
 void digitalWrite(uint8_t pin, uint8_t val);
 void pinMode(uint8_t pin, uint8_t mode);
-
+// 时间函数
+// Time functions
 void delay(unsigned long ms);
 void delayMicroseconds(unsigned int us);
-unsigned long micros(void);
-unsigned long millis(void);
+// unsigned long micros(void);
+// unsigned long millis(void);
 
 #ifdef cplusplus
 }
