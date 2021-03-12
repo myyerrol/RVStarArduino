@@ -1,20 +1,29 @@
 #ifndef RVSTAR_ARDUINO_H
 #define RVSTAR_ARDUINO_H
 
-#ifdef cplusplus
-extern "C" {
-#endif
-
-#include <stdlib.h>
+#include <stdarg.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
 #include "gd32vf103.h"
 #include "gd32vf103_libopt.h"
 
-// 仅支持Arduino UNO标准引脚（D0-D13, A0-A5）
-// Only Arduino Uno standard pins are supported(D0-D13, A0-A5)
+#ifdef __cplusplus
+#include <cinttypes>
+#include <cstdbool>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define A0           14
 #define A1           15
 #define A2           16
@@ -24,6 +33,7 @@ extern "C" {
 
 // 引用自Arduino.h文件
 // Reference from Arduino.h file
+// ****************************************************************************
 #define LOW          0x0
 #define HIGH         0x1
 
@@ -55,8 +65,10 @@ extern "C" {
 #define min(a, b)                      ((a) < (b) ? (a) : (b))
 #define max(a, b)                      ((a) > (b) ? (a) : (b))
 #define abs(x)                         ((x) > 0 ? (x) : -(x))
-#define constrain(amt, low, high)      ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
-#define round(x)                       ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
+#define constrain(amt, low, high)      ((amt) < (low) ? (low) : \
+                                       ((amt) > (high) ? (high) : (amt)))
+#define round(x)                       ((x) >= 0 ? (long)((x) + 0.5) : \
+                                                   (long)((x) - 0.5))
 #define radians(deg)                   ((deg) * DEG_TO_RAD)
 #define degrees(rad)                   ((rad) * RAD_TO_DEG)
 #define sq(x)                          ((x) * (x))
@@ -68,16 +80,24 @@ extern "C" {
 #define bitSet(value, bit)             ((value) |= (1UL << (bit)))
 #define bitClear(value, bit)           ((value) &= ~(1UL << (bit)))
 #define bitToggle(value, bit)          ((value) ^= (1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) ((bitvalue) ? bitSet(value, bit) : bitClear(value, bit))
+#define bitWrite(value, bit, bitvalue) ((bitvalue) ? bitSet(value, bit) : \
+                                                     bitClear(value, bit))
 
 #define bit(b)                         (1UL << (b))
 
 typedef unsigned int word;
 typedef bool boolean;
 typedef uint8_t byte;
+// ****************************************************************************
 
-void initTimerPWMFunc(uint8_t pin);
-void initADCFunc(uint8_t pin);
+// typedef struct {
+//     int a;
+//     int b;
+//     void (*begin)(uint8_t);
+// } I2CStruct;
+// #ifndef I2C_STRUCT
+// extern I2CStruct Wire;
+// #endif
 
 // 模拟输入/输出函数
 // Analog I/O functions
@@ -96,7 +116,7 @@ void delayMicroseconds(unsigned int us);
 // unsigned long micros(void);
 // unsigned long millis(void);
 
-#ifdef cplusplus
+#ifdef __cplusplus
 }
 #endif
 

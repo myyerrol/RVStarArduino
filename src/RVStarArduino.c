@@ -1,5 +1,7 @@
 #include "RVStarArduino.h"
 
+// #define I2C_STRUCT
+
 static const uint32_t GPIO_CLK_ARR[] = {
     RCU_GPIOC,
     RCU_GPIOC,
@@ -194,7 +196,17 @@ static const uint8_t ADC_CHANNEL_ARR[] = {
     ADC_CHANNEL_15
 };
 
-void initTimerPWMFunc(uint8_t pin) {
+static void initTimerPWMFunc(uint8_t pin);
+static void initADCFunc(uint8_t pin);
+// static void initI2CFuncUint8(uint8_t address);
+
+// I2CStruct Wire = {
+//     .a = 0,
+//     .b = 1,
+//     .begin = initI2CFuncUint8
+// };
+
+static void initTimerPWMFunc(uint8_t pin) {
     uint32_t timer_gpio_clk  = TIMER_GPIO_CLK_ARR[pin];
     uint32_t timer_gpio_port = TIMER_GPIO_PORT_ARR[pin];
     uint32_t timer_gpio_pin  = TIMER_GPIO_PIN_ARR[pin];
@@ -264,7 +276,7 @@ void initTimerPWMFunc(uint8_t pin) {
     timer_enable(timer);
 }
 
-void initADCFunc(uint8_t pin) {
+static void initADCFunc(uint8_t pin) {
     uint32_t adc_gpio_pin = ADC_GPIO_PIN_ARR[pin];
     uint8_t  adc_channel  = ADC_CHANNEL_ARR[pin];
 
@@ -320,6 +332,9 @@ void initADCFunc(uint8_t pin) {
     // Calibrate adc and reset calibration
     adc_calibration_enable(ADC0);
 }
+
+// static void initI2CFuncUint8(uint8_t address) {
+// }
 
 int analogRead(uint8_t pin) {
     // 第一次使用需要初始化模数转换器功能

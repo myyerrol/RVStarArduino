@@ -18,10 +18,14 @@
     "examples": [{
         "name": "Test blink",
         "base": "examples",
-        "files": ["test_blink.c"]
+        "files": ["test_blink.cpp"]
     }, {
         "name": "Test pwm",
         "base": "examples",
-        "files": ["test_pwm.c"]
+        "files": ["test_pwm.cpp"]
+    }, {
+        "name": "Test adc",
+        "base": "examples",
+        "files": ["test_adc.cpp"]
     }]
 }
