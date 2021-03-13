@@ -1,6 +1,10 @@
 #ifndef RVSTAR_ARDUINO_H
 #define RVSTAR_ARDUINO_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -10,19 +14,6 @@
 
 #include "gd32vf103.h"
 #include "gd32vf103_libopt.h"
-
-#ifdef __cplusplus
-#include <cinttypes>
-#include <cstdbool>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cmath>
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define A0           14
 #define A1           15
