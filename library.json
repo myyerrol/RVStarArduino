@@ -1,6 +1,6 @@
 {
     "name": "RVStarArduino",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "description": "The Arduino extension for RVStar, you can use Arduino syntax to develop RVStar board.",
     "keywords": "nuclei, rvstar, arduino",
     "repository": {
