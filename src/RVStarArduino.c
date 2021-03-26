@@ -393,9 +393,30 @@ void pinMode(uint8_t pin, uint8_t mode) {
 }
 
 void delay(unsigned long ms) {
-    delay_1ms(ms);
+    uint64_t ticks_start = 0;
+    uint64_t ticks_delta = 0;
+    uint64_t ticks_delay = (SOC_TIMER_FREQ * ms) / 1000;
+
+    ticks_start = SysTimer_GetLoadValue();
+
+    do {
+        ticks_delta = SysTimer_GetLoadValue() - ticks_start;
+    }
+    while (ticks_delta < ticks_delay);
 }
 
 void delayMicroseconds(unsigned int us) {
-    delay_1ms(us / 1000000);
+    delay(us / 1000);
+}
+
+unsigned long micros(void) {
+    uint64_t ms = millis();
+    uint64_t us = ms * 1000;
+    return us;
+}
+
+unsigned long millis(void) {
+    uint64_t ticks_delta = SysTimer_GetLoadValue() - 0;
+    uint64_t ms = ticks_delta * 1000 / SOC_TIMER_FREQ;
+    return ms;
 }

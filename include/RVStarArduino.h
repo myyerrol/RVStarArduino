@@ -24,7 +24,7 @@ extern "C" {
 
 // 引用自Arduino.h文件
 // Reference from Arduino.h file
-// ****************************************************************************
+// ----------------------------------------------------------------------------
 #define LOW          0x0
 #define HIGH         0x1
 
@@ -79,7 +79,7 @@ extern "C" {
 typedef unsigned int word;
 typedef bool boolean;
 typedef uint8_t byte;
-// ****************************************************************************
+// ----------------------------------------------------------------------------
 
 // typedef struct {
 //     int a;
@@ -104,8 +104,8 @@ void pinMode(uint8_t pin, uint8_t mode);
 // Time functions
 void delay(unsigned long ms);
 void delayMicroseconds(unsigned int us);
-// unsigned long micros(void);
-// unsigned long millis(void);
+unsigned long micros(void);
+unsigned long millis(void);
 
 #ifdef __cplusplus
 }
