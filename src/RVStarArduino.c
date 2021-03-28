@@ -73,6 +73,26 @@ static const uint8_t GPIO_MODE_ARR[] = {
     GPIO_MODE_OUT_PP,      // 推挽输出模式 Push-pull output mode
     GPIO_MODE_IPU,         // 上拉输入模式 Pull-up input mode
 };
+
+static const uint32_t ADC_GPIO_PIN_ARR[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    GPIO_PIN_0,
+    GPIO_PIN_1,
+    GPIO_PIN_2,
+    GPIO_PIN_3,
+    GPIO_PIN_4,
+    GPIO_PIN_5
+};
+static const uint8_t ADC_CHANNEL_ARR[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ADC_CHANNEL_10,
+    ADC_CHANNEL_11,
+    ADC_CHANNEL_12,
+    ADC_CHANNEL_13,
+    ADC_CHANNEL_14,
+    ADC_CHANNEL_15
+};
+
 // Arduino Pin 3  => RV-STAR TIMER2_CH3
 // Arduino Pin 5  => RV-STAR TIMER2_CH3/TIMER0_CH2_ON
 // Arduino Pin 6  => RV-STAR TIMER2_CH2
@@ -177,34 +197,75 @@ static const uint32_t TIMER_FLAG_ARR[] = {
     TIMER_FLAG_CH3,
     TIMER_FLAG_CH1
 };
-static const uint32_t ADC_GPIO_PIN_ARR[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    GPIO_PIN_0,
-    GPIO_PIN_1,
-    GPIO_PIN_2,
-    GPIO_PIN_3,
-    GPIO_PIN_4,
-    GPIO_PIN_5
-};
-static const uint8_t ADC_CHANNEL_ARR[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    ADC_CHANNEL_10,
-    ADC_CHANNEL_11,
-    ADC_CHANNEL_12,
-    ADC_CHANNEL_13,
-    ADC_CHANNEL_14,
-    ADC_CHANNEL_15
-};
 
-static void initTimerPWMFunc(uint8_t pin);
 static void initADCFunc(uint8_t pin);
-// static void initI2CFuncUint8(uint8_t address);
+static void initTimerPWMFunc(uint8_t pin);
 
 // I2CStruct Wire = {
 //     .a = 0,
 //     .b = 1,
 //     .begin = initI2CFuncUint8
 // };
+
+static void initADCFunc(uint8_t pin) {
+    // uint32_t adc_gpio_pin = ADC_GPIO_PIN_ARR[pin];
+    // uint8_t  adc_channel  = ADC_CHANNEL_ARR[pin];
+
+    // 启用模数转换器时钟
+    // Enable adc clock
+    rcu_periph_clock_enable(RCU_ADC0);
+    rcu_periph_clock_enable(RCU_GPIOC);
+    // 配置模数转换器时钟频率： 108MHz / 8 = 13.5MHz（超过14MHz精度会降低）
+    // Configure adc clock rate: 108MHz / 8 = 13.5MHz(over 14Mhz, the accuracy
+    // will be reduced)
+    rcu_adc_clock_config(RCU_CKADC_CKAPB2_DIV8);
+
+    // 初始化模数转换器GPIO参数（模式为模拟输入）
+    // Initialize adc gpio parameter(mode is analog input)
+    // gpio_init(GPIOC, GPIO_MODE_AIN, GPIO_OSPEED_50MHZ, adc_gpio_pin);
+    gpio_init(GPIOC, GPIO_MODE_AIN, GPIO_OSPEED_50MHZ,
+              GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 |
+              GPIO_PIN_5);
+
+    // 复位模数转换器
+    // Reset adc
+    adc_deinit(ADC0);
+    // 配置模数转换器模式（独立模式）
+    // Configure adc mode(independent mode)
+    adc_mode_config(ADC0, ADC_MODE_FREE);
+    // 禁用模数转换器扫描模式（只使用单次模式）
+    // Disable adc scan mode(use single mode only)
+    adc_special_function_config(ADC0, ADC_SCAN_MODE, DISABLE);
+    // 禁用模数转换器连续模式（只使用单次模式）
+    // Disable adc contineous mode(use single mode only)
+    adc_special_function_config(ADC0, ADC_CONTINUOUS_MODE, DISABLE);
+    // 配置模数转换器数据对齐（右对齐）
+    // Configure adc data alignment(right alignment)
+    adc_data_alignment_config(ADC0, ADC_DATAALIGN_RIGHT);
+    // 配置模数转换器通道的长度
+    // Configure adc channel length
+    adc_channel_length_config(ADC0, ADC_REGULAR_CHANNEL, 1);
+    // 配置模数转换器的规则通道（采样时间为239.5周期）
+    // Configure adc regular channel(the sampling time is 239.5 cycles)
+    // adc_regular_channel_config(ADC0, 0, adc_channel, ADC_SAMPLETIME_239POINT5);
+    // 配置模数转换器触发源参数（规则通道采用软件触发）
+    // Configure adc external trigger source(software trigger for regular channel)
+    adc_external_trigger_source_config(ADC0, ADC_REGULAR_CHANNEL,
+                                       ADC0_1_EXTTRIG_REGULAR_NONE);
+    // 配置模数转换器触发器参数
+    // Configure adc external trigger(Arduino)
+    adc_external_trigger_config(ADC0, ADC_REGULAR_CHANNEL, ENABLE);
+    // 配置模数转换器分辨率（默认采用10bit）
+    // Configure adc resolution(the default is 10bit)
+    adc_resolution_config(ADC0, ADC_RESOLUTION_10B);
+
+    // 启用模数转换器
+    // Enable adc
+    adc_enable(ADC0);
+    // 校准模数转换器并复位校准
+    // Calibrate adc and reset calibration
+    adc_calibration_enable(ADC0);
+}
 
 static void initTimerPWMFunc(uint8_t pin) {
     uint32_t timer_gpio_clk  = TIMER_GPIO_CLK_ARR[pin];
@@ -229,8 +290,8 @@ static void initTimerPWMFunc(uint8_t pin) {
     // Reset timer
     timer_deinit(timer);
 
-    timer_oc_parameter_struct timer_ocinitpara;
     timer_parameter_struct    timer_initpara;
+    timer_oc_parameter_struct timer_ocinitpara;
 
     // 初始化定时器初始参数结构
     // Initialize timer init parameter struct
@@ -276,73 +337,17 @@ static void initTimerPWMFunc(uint8_t pin) {
     timer_enable(timer);
 }
 
-static void initADCFunc(uint8_t pin) {
-    uint32_t adc_gpio_pin = ADC_GPIO_PIN_ARR[pin];
-    uint8_t  adc_channel  = ADC_CHANNEL_ARR[pin];
-
-    // 启用模数转换器时钟
-    // Enable adc clock
-    rcu_periph_clock_enable(RCU_ADC0);
-    rcu_periph_clock_enable(RCU_GPIOC);
-    // 配置模数转换器时钟频率： 108MHz / 8 = 13.5MHz（超过14MHz精度会降低）
-    // Configure adc clock rate: 108MHz / 8 = 13.5MHz(over 14Mhz, the accuracy
-    // will be reduced)
-    rcu_adc_clock_config(RCU_CKADC_CKAPB2_DIV8);
-
-    // 初始化模数转换器GPIO参数（模式为模拟输入）
-    // Initialize adc gpio parameter(mode is analog input)
-    gpio_init(GPIOC, GPIO_MODE_AIN, GPIO_OSPEED_50MHZ, adc_gpio_pin);
-
-    // 复位模数转换器
-    // Reset adc
-    adc_deinit(ADC0);
-    // 配置模数转换器模式（独立模式）
-    // Configure adc mode(independent mode)
-    adc_mode_config(ADC0, ADC_MODE_FREE);
-    // 禁用模数转换器扫描模式（只使用单次模式）
-    // Disable adc scan mode(use single mode only)
-    adc_special_function_config(ADC0, ADC_SCAN_MODE, DISABLE);
-    // 禁用模数转换器连续模式（只使用单次模式）
-    // Disable adc contineous mode(use single mode only)
-    adc_special_function_config(ADC0, ADC_CONTINUOUS_MODE, DISABLE);
-    // 配置模数转换器数据对齐（右对齐）
-    // Configure adc data alignment(right alignment)
-    adc_data_alignment_config(ADC0, ADC_DATAALIGN_RIGHT);
-    // 配置模数转换器通道的长度
-    // Configure adc channel length
-    adc_channel_length_config(ADC0, ADC_REGULAR_CHANNEL, 1);
-    // 配置模数转换器的规则通道（采样时间为239.5周期）
-    // Configure adc regular channel(the sampling time is 239.5 cycles)
-    adc_regular_channel_config(ADC0, 0, adc_channel, ADC_SAMPLETIME_239POINT5);
-    // 配置模数转换器触发源参数（规则通道采用软件触发）
-    // Configure adc external trigger source(software trigger for regular channel)
-    adc_external_trigger_source_config(ADC0, ADC_REGULAR_CHANNEL,
-                                       ADC0_1_EXTTRIG_REGULAR_NONE);
-    // 配置模数转换器触发器参数
-    // Configure adc external trigger(Arduino)
-    adc_external_trigger_config(ADC0, ADC_REGULAR_CHANNEL, ENABLE);
-    // 配置模数转换器分辨率（默认采用10bit）
-    // Configure adc resolution(the default is 10bit)
-    adc_resolution_config(ADC0, ADC_RESOLUTION_10B);
-
-    // 启用模数转换器
-    // Enable adc
-    adc_enable(ADC0);
-    // 校准模数转换器并复位校准
-    // Calibrate adc and reset calibration
-    adc_calibration_enable(ADC0);
-}
-
-// static void initI2CFuncUint8(uint8_t address) {
-// }
-
 int analogRead(uint8_t pin) {
+    uint8_t adc_channel = ADC_CHANNEL_ARR[pin];
+
     // 第一次使用需要初始化模数转换器功能
     // The first use needs to initialize adc function
     if (!adc_flag_get(ADC0, ADC_FLAG_STRC)) {
         initADCFunc(pin);
     }
-
+    // 配置模数转换器的规则通道（采样时间为239.5周期）
+    // Configure adc regular channel(the sampling time is 239.5 cycles)
+    adc_regular_channel_config(ADC0, 0, adc_channel, ADC_SAMPLETIME_239POINT5);
     // 启用模数转换器软件触发转换
     // Enable adc software trigger conversion
     adc_software_trigger_enable(ADC0, ADC_REGULAR_CHANNEL);
@@ -366,7 +371,7 @@ void analogWrite(uint8_t pin, int val) {
 
     // 配置定时器通道输出脉冲值
     // Configure timer channel output pulse value
-    timer_channel_output_pulse_value_config(timer, timer_ch, (255 - val));
+    timer_channel_output_pulse_value_config(timer, timer_ch, val);
 }
 
 int digitalRead(uint8_t pin) {
@@ -395,7 +400,7 @@ void pinMode(uint8_t pin, uint8_t mode) {
 void delay(unsigned long ms) {
     uint64_t ticks_start = 0;
     uint64_t ticks_delta = 0;
-    uint64_t ticks_delay = (SOC_TIMER_FREQ * ms) / 1000;
+    uint64_t ticks_delay = (SOC_TIMER_FREQ * (uint64_t)ms) / 1000;
 
     ticks_start = SysTimer_GetLoadValue();
 
