@@ -415,13 +415,13 @@ void delayMicroseconds(unsigned int us) {
 }
 
 unsigned long micros(void) {
-    uint64_t ms = millis();
-    uint64_t us = ms * 1000;
+    uint32_t ms = millis();
+    uint32_t us = ms * 1000;
     return us;
 }
 
 unsigned long millis(void) {
     uint64_t ticks_delta = SysTimer_GetLoadValue() - 0;
-    uint64_t ms = ticks_delta * 1000 / SOC_TIMER_FREQ;
+    uint32_t ms = (uint32_t)(ticks_delta * 1000 / SOC_TIMER_FREQ);
     return ms;
 }

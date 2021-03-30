@@ -63,6 +63,7 @@ extern "C" {
 #define radians(deg)                   ((deg) * DEG_TO_RAD)
 #define degrees(rad)                   ((rad) * RAD_TO_DEG)
 #define sq(x)                          ((x) * (x))
+#define map(x, in_min, in_max, out_min, out_max) ((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 #define lowByte(w)                     ((uint8_t) ((w) & 0xff))
 #define highByte(w)                    ((uint8_t) ((w) >> 8))
